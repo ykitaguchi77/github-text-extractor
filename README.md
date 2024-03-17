@@ -26,12 +26,13 @@
     ```
   - Provide the following arguments:
     - `repository_url`: The URL of the GitHub repository you want to extract.
-    - `output_path`: The path where you want to save the output file. The output format will be determined based on the file extension (`.xml` for XML format, otherwise text format).
+    - `output_path`: The path where you want to save the output file. The output format will be determined based on the file extension (`.xml` for XML format, or `.txt` for text format).
     - `--exclude_dirs` (optional): Specify the directories to exclude from the extraction process. By default, the `.git` directory is excluded.
+    - `--tree_output` (optional): Specify the directories to save the file hierarchy to a text file.
 
 3. **Output:**
   - The script will clone the specified GitHub repository to a temporary directory.
-  - It will display the file hierarchy of the repository and save it to a file named `tree_structure.txt`.
+  - It will display the file hierarchy of the repository. If you use tree-output option, the hierarchy is save to a txt file.
   - The file hierarchy and contents will be exported in the specified format (XML or text) to the provided output path.
 
 ## 📊 Application
@@ -62,7 +63,7 @@ python github-text-extractor.py --repository_url https://github.com/username/rep
 python github-text-extractor.py --repository_url https://github.com/username/repo.git --output_path output.txt --exclude_dirs .git --tree_output tree_structure.txt
 ```
 
-- This command will adds saving the directory tree structure to tree_structure.txt.
+- This command will add saving the directory tree structure to tree_structure.txt.
 
 
 ## 🚀 Colab Demo
