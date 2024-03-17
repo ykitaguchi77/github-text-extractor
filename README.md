@@ -51,7 +51,7 @@
 - To extract the content of a GitHub repository and exclude specific directories, run the following command:
 
  ```bash
-python github-text-extractor.py https://github.com/username/repo.git output.txt --exclude_dirs .git node_modules
+python github-text-extractor.py --repository_url https://github.com/username/repo.git --output_path output.txt --exclude_dirs .git
 ```
 
 - This command will clone the repository, extract its content, exclude the .git and node_modules directories, and save the output in XML format to the file output.xml.
