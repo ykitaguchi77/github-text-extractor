@@ -43,6 +43,7 @@
 - Dependencies can be installed with:
  ```bash
  pip install gitpython treelib
+ ```
 
 
 ## 🖥️ Example Usage
@@ -50,6 +51,7 @@
 
  ```bash
 python github-text-extractor.py https://github.com/username/repo.git output.txt --exclude_dirs .git node_modules
+```
 
 - This command will clone the repository, extract its content, exclude the .git and node_modules directories, and save the output in XML format to the file output.xml.
 
