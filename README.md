@@ -39,14 +39,15 @@
 `GitHubTextExtractor` is perfect for extracting the content of entire GitHub repositories for analysis with Large Language Models (LLMs), facilitating thorough understanding of code structures and content.
 
 ## ⚙️ Setup
+
 - Implemented in Python, requiring libraries like `os`, `argparse`, `git`, `treelib`, and `xml.etree.ElementTree`.
 - Dependencies can be installed with:
  ```bash
  pip install gitpython treelib
  ```
 
+ ## 🖥️ Example Usage
 
-## 🖥️ Example Usage
 - To extract the content of a GitHub repository and exclude specific directories, run the following command:
 
  ```bash
@@ -54,4 +55,12 @@ python github-text-extractor.py https://github.com/username/repo.git output.txt 
 ```
 
 - This command will clone the repository, extract its content, exclude the .git and node_modules directories, and save the output in XML format to the file output.xml.
+
+
+## 🚀 Colab Demo
+-You can also try out GitHubTextExtractor using the provided Colab demo. The demo notebook guides you through the process of running the script and extracting the content of a GitHub repository directly in Colab.
+
+-To access the Colab demo, click on the following link: GitHubTextExtractor Colab Demo
+
+
 
