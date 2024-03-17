@@ -10,6 +10,7 @@
 - 🌐 Provides a visual representation of the file hierarchy.
 - 📄 Exports the directory structure and file contents in XML or text format for further analysis.
 - 🚫 Allows specifying directories to exclude from the extraction process.
+- 📝 Supports extracting only the README file or code files.
 
 ## 🔍 How to Use
 
@@ -22,17 +23,19 @@
 2. **Running the Script:**
   - Run the script with the following command:
     ```bash
-    python github-text-extractor.py repository_url output_path [--exclude_dirs dir1 dir2 ...]
+    python github-text-extractor.py --repository_url <url> --output_path <path> [--exclude_dirs <dir1> <dir2> ...] [--tree_output <path>] [--readme] [--code]
     ```
   - Provide the following arguments:
-    - `repository_url`: The URL of the GitHub repository you want to extract.
-    - `output_path`: The path where you want to save the output file. The output format will be determined based on the file extension (`.xml` for XML format, or `.txt` for text format).
+    - `--repository_url`: The URL of the GitHub repository you want to extract.
+    - `--output_path`: The path where you want to save the output file. The output format will be determined based on the file extension (`.xml` for XML format, or `.txt` for text format).
     - `--exclude_dirs` (optional): Specify the directories to exclude from the extraction process. By default, the `.git` directory is excluded.
-    - `--tree_output` (optional): Specify the directories to save the file hierarchy to a text file.
+    - `--tree_output` (optional): Specify the path to save the file hierarchy to a text file.
+    - `--readme` (optional): Extract only the README file.
+    - `--code` (optional): Extract only code files (e.g., .py, .java, .c, .cpp, .h, .hpp, .js, .css, .html).
 
 3. **Output:**
   - The script will clone the specified GitHub repository to a temporary directory.
-  - It will display the file hierarchy of the repository. If you use tree-output option, the hierarchy is save to a txt file.
+  - It will display the file hierarchy of the repository. If you use the `--tree_output` option, the hierarchy is saved to a text file.
   - The file hierarchy and contents will be exported in the specified format (XML or text) to the provided output path.
 
 ## 📊 Application
@@ -45,7 +48,6 @@
 - Dependencies can be installed with:
  ```bash
  pip install gitpython treelib
- ```
 
  ## 🖥️ Example Usage
 
