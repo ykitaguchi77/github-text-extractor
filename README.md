@@ -54,7 +54,15 @@
 python github-text-extractor.py --repository_url https://github.com/username/repo.git --output_path output.txt --exclude_dirs .git
 ```
 
-- This command will clone the repository, extract its content, exclude the .git and node_modules directories, and save the output in XML format to the file output.xml.
+- This command will extract its content, exclude the .git directories, and save the output in txt format to the file output.txt.
+
+- To save the directory tree structure in a separate text file, use the --tree_output option:
+
+```bash
+python github-text-extractor.py --repository_url https://github.com/username/repo.git --output_path output.txt --exclude_dirs .git --tree_output tree_structure.txt
+```
+
+- This command will adds saving the directory tree structure to tree_structure.txt.
 
 
 ## 🚀 Colab Demo

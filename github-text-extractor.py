@@ -21,11 +21,18 @@ def display_file_hierarchy(directory, exclude_dirs, output_file=None):
         for file in files:
             tree.create_node(file, os.path.join(root, file), parent=root)
     
+    temp_file = "temp.txt"
+    tree.save2file(temp_file)
+    
+    with open(temp_file, 'r') as file:
+        print("Directory structure:")
+        print(file.read())
+    
     if output_file:
-        tree.save2file(output_file)
+        os.rename(temp_file, output_file)
         print(f"Directory structure saved to {output_file}")
     else:
-        tree.show()
+        os.remove(temp_file)
 
 def read_file_content(file_path):
     try:
