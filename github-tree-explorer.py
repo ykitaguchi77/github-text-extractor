@@ -1,196 +1,103 @@
-import SwiftUI
+import os
+import argparse
+import xml.etree.ElementTree as ET
+from git import Repo
+from treelib import Tree
 
-@main
-struct DynamicAllocation: App {
-    let persistenceController = PersistenceController.shared
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-        }
-    }
-}
+def clone_repository(repository_url, clone_dir):
+    os.makedirs(clone_dir, exist_ok=True)
+    Repo.clone_from(repository_url, clone_dir)
 
+def display_file_hierarchy(directory, exclude_dirs):
+    tree = Tree()
+    tree.create_node(directory, directory)
 
-import SwiftUI
+    for root, dirs, files in os.walk(directory):
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        for dir in dirs:
+            tree.create_node(dir, os.path.join(root, dir), parent=root)
+        for file in files:
+            tree.create_node(file, os.path.join(root, file), parent=root)
 
+    tree_file = os.path.join(directory, "tree_structure.txt")
+    with open(tree_file, 'w') as file:
+        pass
+    tree.save2file(tree_file)
+    print(f"Directory structure saved to {tree_file}")
 
-struct ContentView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                NavigationLink(destination: InputView()) {
-                    Text("入力画面")
-                }
-                NavigationLink(destination: SubjectListView()) {
-                    Text("CoreData閲覧ページ")
-                }
-            }
-            .navigationTitle("動的割り付けアプリ")
-        }
-    }
-}
+    with open(tree_file, 'r') as file:
+        print(file.read())
 
+def read_file_content(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except Exception as e:
+        return str(e)
 
-//
-//  InputView.swift
-//  DynamicAllocation
-//
-//  Created by Yoshiyuki Kitaguchi on 2024/03/14.
-//
+def directory_to_xml(directory, exclude_dirs=None):
+    if exclude_dirs is None:
+        exclude_dirs = []
 
-import SwiftUI
+    root_element = ET.Element("directory", name=os.path.basename(directory))
 
-struct InputView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    
-    @State private var id = ""
-    @State private var gender = "男性"
-    @State private var age = "50歳未満"
-    @State private var hasTrick = "あり"
-    @State private var assignment = ""
-    
-    var body: some View {
-        Form {
-            TextField("ID", text: $id)
-            
-            Picker("性別", selection: $gender) {
-                Text("男性").tag("男性")
-                Text("女性").tag("女性")
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            
-            Picker("年齢", selection: $age) {
-                Text("50歳未満").tag("50歳未満")
-                Text("50歳以上").tag("50歳以上")
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            
-            Picker("知覚トリック", selection: $hasTrick) {
-                Text("あり").tag("あり")
-                Text("なし").tag("なし")
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            
-            Button("組み入れ") {
-                assignSubject()
-            }
-            
-            Text("組み入れ結果: \(assignment)")
-        }
-        .navigationTitle("入力画面")
-    }
-    
-    private func assignSubject() {
-        // 動的割り付けのロジックを実装
-        // ...
-        
-        let newSubject = Subject(context: viewContext)
-        newSubject.id = id
-        newSubject.gender = gender
-        newSubject.age = age
-        newSubject.hasTrick = hasTrick == "あり" // 文字列からBool値に変換
-        newSubject.assignment = assignment
-        
-        do {
-            try viewContext.save()
-        } catch {
-            print("Failed to save subject: \(error)")
-        }
-    }
-}
+    for root, dirs, files in os.walk(directory, topdown=True):
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            sub_element = ET.SubElement(root_element, "directory", name=dir_name)
+            append_files_and_dirs(sub_element, dir_path, exclude_dirs)
 
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            file_element = ET.SubElement(root_element, "file", name=file_name)
+            content = read_file_content(file_path)
+            file_element.text = content
 
+        break
 
-import SwiftUI
-struct SubjectListView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Subject.id, ascending: true)],
-        animation: .default)
-    private var subjects: FetchedResults<Subject>
-    
-    var body: some View {
-        List {
-            ForEach(subjects) { subject in
-                VStack(alignment: .leading) {
-                    Text("ID: \(subject.id)")
-                    Text("性別: \(subject.gender)")
-                    Text("年齢: \(subject.age)")
-                    Text("知覚トリック: \(subject.hasTrick ? "あり" : "なし")")
-                    Text("割り付け: \(subject.assignment)")
-                }
-            }
-        }
-        .navigationTitle("CoreData閲覧ページ")
-    }
-}
+    return root_element
 
+def append_files_and_dirs(parent_element, path, exclude_dirs):
+    for item in os.listdir(path):
+        item_path = os.path.join(path, item)
+        if os.path.isdir(item_path) and item not in exclude_dirs:
+            dir_element = ET.SubElement(parent_element, "directory", name=item)
+            append_files_and_dirs(dir_element, item_path, exclude_dirs)
+        elif os.path.isfile(item_path):
+            file_element = ET.SubElement(parent_element, "file", name=item)
+            content = read_file_content(item_path)
+            file_element.text = content
 
+def write_xml_to_file(element, file_name):
+    tree = ET.ElementTree(element)
+    tree.write(file_name, encoding='utf-8', xml_declaration=True)
 
-import Foundation
-import CoreData
+def write_xml_to_text_file(xml_element, text_file_name):
+    with open(text_file_name, 'w', encoding='utf-8') as file:
+        file.write(ET.tostring(xml_element, encoding='unicode'))
 
-@objc(Subject)
-public class Subject: NSManagedObject, Identifiable {
-    @NSManaged public var id: String
-    @NSManaged public var gender: String
-    @NSManaged public var age: String
-    @NSManaged public var hasTrick: Bool
-    @NSManaged public var assignment: String
-}
+def main():
+    parser = argparse.ArgumentParser(description='GitHub Text Extractor')
+    parser.add_argument('repository_url', help='URL of the GitHub repository')
+    parser.add_argument('output_path', help='Path to save the output file')
+    parser.add_argument('xml_or_txt', choices=['xml', 'txt'], help='Output format: xml or txt')
+    args = parser.parse_args()
 
+    clone_dir = "./temp_repo"
+    exclude_dirs = ['.git']
 
+    clone_repository(args.repository_url, clone_dir)
+    display_file_hierarchy(clone_dir, exclude_dirs)
 
+    root_element = directory_to_xml(clone_dir, exclude_dirs)
 
+    if args.xml_or_txt == 'xml':
+        write_xml_to_file(root_element, args.output_path)
+    else:
+        write_xml_to_text_file(root_element, args.output_path)
 
-import Foundation
-import CoreData
+    print(f"Output saved to {args.output_path}")
 
-@objc(Item)
-public class Item: NSManagedObject {
-
-}
-
-
-import Foundation
-import CoreData
-
-
-extension Item {
-
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<Item> {
-        return NSFetchRequest<Item>(entityName: "Item")
-    }
-
-    @NSManaged public var age: String?
-    @NSManaged public var assignment: String?
-    @NSManaged public var gender: String?
-    @NSManaged public var hasTrick: Bool
-    @NSManaged public var id: String?
-
-}
-
-extension Item : Identifiable {
-
-}
-
-
-import CoreData
-
-struct PersistenceController {
-    static let shared = PersistenceController()
-
-    let container: NSPersistentContainer
-
-    init() {
-        container = NSPersistentContainer(name: "DynamicAllocation")
-        container.loadPersistentStores { (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-    }
-}
+if __name__ == '__main__':
+    main()
